@@ -1,0 +1,112 @@
+#!/usr/bin/python3
+import sys
+import os
+
+def print_usage():
+    print("Usage: ./ccwc -option [<filename>]")
+    sys.exit(1)
+
+def count_bytes(file_path=None):
+    try:
+        if file_path:
+            file_size = os.path.getsize(file_path)
+            print(f"{file_size} {file_path}")
+        else:
+            data = sys.stdin.read()
+            print(f"{len(data.encode('utf-8'))}")
+    except FileNotFoundError:
+        print(f"ccwc: {file_path}: No such file or directory")
+        sys.exit(1)
+
+def count_lines(file_path=None):
+    try:
+        if file_path:
+            with open(file_path, 'r') as file:
+                lines = file.readlines()
+                print(f"{len(lines)} {file_path}")
+        else:
+            lines = sys.stdin.readlines()
+            print(f"{len(lines)}")
+    except FileNotFoundError:
+        print(f"ccwc: {file_path}: No such file or directory")
+        sys.exit(1)
+
+def count_words(file_path=None):
+    try:
+        if file_path:
+            with open(file_path, 'r') as file:
+                data = file.read()
+                words = data.split()
+                print(f"{len(words)} {file_path}")
+        else:
+            data = sys.stdin.read()
+            words = data.split()
+            print(f"{len(words)}")
+    except FileNotFoundError:
+        print(f"ccwc: {file_path}: No such file or directory")
+        sys.exit(1)
+
+def count_chars(file_path=None):
+    try:
+        if file_path:
+            with open(file_path, 'r', newline='') as file:
+                text = file.read()
+                print(f"{len(text)} {file_path}")
+        else:
+            text = sys.stdin.read()
+            print(f"{len(text)}")
+    except FileNotFoundError:
+        print(f"ccwc: {file_path}: No such file or directory")
+        sys.exit(1)
+
+def count_all(file_path=None):
+    try:
+        if file_path:
+            with open(file_path, 'r') as file:
+                data = file.read()
+                lines = data.splitlines()
+                words = data.split()
+                file_size = os.path.getsize(file_path)
+                print(f"{len(lines):7} {len(words):7} {file_size:7} {file_path}")
+        else:
+            data = sys.stdin.read()
+            lines = data.splitlines()
+            words = data.split()
+            print(f"{len(lines):7} {len(words):7} {len(data.encode('utf-8')):7}")
+    except FileNotFoundError:
+        print(f"ccwc: {file_path}: No such file or directory")
+        sys.exit(1)
+
+def main():
+    if len(sys.argv) < 2:
+        print_usage()
+
+    if len(sys.argv) == 2:
+        option_or_file_path = sys.argv[1]
+        if option_or_file_path.startswith('-'):
+            option = option_or_file_path
+            file_path = None
+        else:
+            option = None
+            file_path = option_or_file_path
+    else:
+        option = sys.argv[1]
+        file_path = sys.argv[2]
+
+    actions = {
+        '-c': count_bytes,
+        '-l': count_lines,
+        '-w': count_words,
+        '-m': count_chars,
+    }
+
+    if option:
+        if option in actions:
+            actions[option](file_path)
+        else:
+            print_usage()
+    else:
+        count_all(file_path)
+
+if __name__ == '__main__':
+    main()
